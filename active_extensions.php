@@ -292,6 +292,7 @@ echo "</table>\n";
 echo "<div id=\"url\"></div>\n";
 echo "<br />\n";
 
+echo "<div class='card'>\n";
 echo "<table width='100%' border='0' cellpadding='0' cellspacing='2'>\n";
 echo "	<tr class='border'>\n";
 if ($event_type=="iframe") {
@@ -315,6 +316,7 @@ if ($event_type=="iframe") {
 
 echo "	</tr>";
 echo "</table>";
+echo "</div>\n";
 echo "</div>\n";
 
 echo "<script type=\"text/javascript\">\n";
