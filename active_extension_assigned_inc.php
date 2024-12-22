@@ -112,7 +112,7 @@
 							echo "<td class='".$row_style[$c]."' $style_alternate width='20px;'>".$call_length."</td>\n";
 	
 							if (strlen($url) == 0) {
-								$url = PROJECT_PATH."/app/contacts/contacts.php?search_all={cid_num}";
+								$url = PROJECT_PATH."/core/contacts/contacts.php?search_all={cid_num}";
 							}
 							$url = str_replace ("{cid_num}", $cid_num, $url);
 							$url = str_replace ("{cid_name}", $cid_name, $url);

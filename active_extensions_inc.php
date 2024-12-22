@@ -406,7 +406,7 @@
 							if (if_group("admin") || if_group("superadmin")) {
 								if (strlen(($_GET['rows'])) == 0) {
 									if (strlen($url) == 0) {
-										$url = PROJECT_PATH."/app/contacts/contacts.php?search_all={cid_num}";
+										$url = PROJECT_PATH."/core/contacts/contacts.php?search_all={cid_num}";
 									}
 									$url = str_replace ("{cid_num}", escape($cid_num), $url);
 									$url = str_replace ("{cid_name}", escape($cid_name), $url);
