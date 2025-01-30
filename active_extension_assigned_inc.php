@@ -26,20 +26,21 @@
 
 //includes files
 	require_once dirname(__DIR__, 2) . "/resources/require.php";
+	require_once "resources/pdo.php";
 	require_once "resources/check_auth.php";
 
 //check permissions
 	if (permission_exists('active_extension_assigned_view')) {
-	
+
 		//http get and set variables
 			if (strlen($_GET['url']) > 0) {
 				$url = $_GET['url'];
 			}
-	
+
 			echo "<table width='100%' border='0' cellpadding='5' cellspacing='0'>\n";
 			echo "<tr>\n";
 			echo "<td valign='top'>\n";
-	
+
 			echo "<table width='100%' border='0' cellpadding='0' cellspacing='0'>\n";
 			echo "<tr>\n";
 			echo "<th width='50px;'>Ext</th>\n";
@@ -65,12 +66,12 @@
 				$extension = $row['extension'];
 				$enabled = $row['enabled'];
 				$effective_caller_id_name = $row['effective_caller_id_name'];
-	
+
 				foreach ($_SESSION['user']['extension'] as &$user_row) {
 					if ($extension == $user_row['user']) {
 						$found_extension = false;
 						$x = 1;
-	
+
 						foreach ($channels_array as $row) {
 							//set the php variables
 								foreach ($row as $key => $value) {
@@ -83,9 +84,9 @@
 										break;
 								}
 						} //end foreach
-	
+
 						if ($number == $extension) {
-							if ($application == "conference") { 
+							if ($application == "conference") {
 								$alt_color = "background-image: url('".PROJECT_PATH."/themes/".$_SESSION['domain']['template']['name']."/images/background_cell_active.gif";
 							}
 							switch ($application) {
@@ -110,7 +111,7 @@
 								echo "<td class='".$row_style[$c]."' $style_alternate>".escape($user_array[$extension]['user_status'])."&nbsp;</td>\n";
 							}
 							echo "<td class='".$row_style[$c]."' $style_alternate width='20px;'>".$call_length."</td>\n";
-	
+
 							if (strlen($url) == 0) {
 								$url = PROJECT_PATH."/core/contacts/contacts.php?search_all={cid_num}";
 							}
@@ -118,7 +119,7 @@
 							$url = str_replace ("{cid_name}", $cid_name, $url);
 							echo "<td class='".$row_style[$c]."' $style_alternate><a href='".escape($url)."' style='color: #444444;' target='_blank'>".escape($cid_name)."</a></td>\n";
 							echo "<td class='".$row_style[$c]."' $style_alternate><a href='".escape($url)."' style='color: #444444;' target='_blank'>".escape($cid_num)."</a></td>\n";
-	
+
 							//get the active uuid list
 								if (strlen($uuid) > 1) {
 									if (strlen($uuid_1) == 0) {
@@ -134,7 +135,7 @@
 										$cid_num_2 = $cid_num;
 									}
 								}
-	
+
 							echo "<td class='".$row_style[$c]."' $style_alternate>\n";
 							if ($application == "valet_park") {
 								echo $valet_array[trim($uuid)]['extension']."\n";
@@ -213,21 +214,21 @@
 				} //end foreach
 			}
 			echo "</table>\n";
-	
+
 			echo "</td>\n";
 			echo "</tr>\n";
 			echo "</table>\n";
-	
+
 			echo "<span id='uuid_1' style='visibility:hidden;'>$uuid_1</span>\n";
 			//echo "<span id='direction_1' style='visibility:hidden;'>$direction_1</span>\n";
 			echo "<span id='cid_name_1' style='visibility:hidden;'>$cid_name_1</span>\n";
 			echo "<span id='cid_num_1' style='visibility:hidden;'>$cid_num_1</span>\n";
-	
+
 			echo "<span id='uuid_2' style='visibility:hidden;'>$uuid_2</span>\n";
 			//echo "<span id='direction_2' style='visibility:hidden;'>$direction_2</span>\n";
 			echo "<span id='cid_name_2' style='visibility:hidden;'>$cid_name_2</span>\n";
 			echo "<span id='cid_num_2' style='visibility:hidden;'>$cid_num_2</span>\n";
-	
+
 			echo "<br />\n";
 	}
 

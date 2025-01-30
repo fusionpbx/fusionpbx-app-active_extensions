@@ -26,6 +26,7 @@
 
 //includes files
 	require_once dirname(__DIR__, 2) . "/resources/require.php";
+	require_once "resources/pdo.php";
 	require_once "resources/check_auth.php";
 
 //check permissions
@@ -101,7 +102,7 @@
 
 //get information over event socket
 	if (!$fp) {
-		$msg = "<div align='center'>".$text['confirm-socket']."<br /></div>"; 
+		$msg = "<div align='center'>".$text['confirm-socket']."<br /></div>";
 		echo "<div align='center'>\n";
 		echo "<table width='40%'>\n";
 		echo "<tr>\n";
@@ -357,7 +358,7 @@
 					}
 					echo "</tr>\n";
 					$x = 1;
-					
+
 					foreach ($_SESSION['extension_array'] as $row) {
 						$domain_uuid = $row['domain_uuid'];
 						$extension = $row['extension'];
@@ -378,7 +379,7 @@
 						}
 
 						if ($found_extension) {
-							if ($application == "conference") { 
+							if ($application == "conference") {
 								$alt_color = "background-image: url('".PROJECT_PATH."/themes/".$_SESSION['domain']['template']['name']."/images/background_cell_active.gif";
 							}
 							switch ($application) {
