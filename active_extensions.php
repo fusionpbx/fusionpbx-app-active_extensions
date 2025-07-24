@@ -204,6 +204,18 @@ var destination;
 
 <?php
 
+//get the user status when the page loads
+$sql = "select * from v_users ";
+$sql .= "where domain_uuid = :domain_uuid ";
+$sql .= "and username = :username ";
+$sql .= "and user_enabled = 'true' ";
+$parameters['domain_uuid'] = $domain_uuid;
+$parameters['username'] = $_SESSION['username'];
+$database = new database;
+$row = $database->select($sql, $parameters ?? null, 'row');
+$user_status = $row["user_status"] ?? null;
+unset($parameters);
+
 echo "<div align='center'>";
 
 echo "<table width=\"100%\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\">\n";
@@ -211,20 +223,6 @@ echo "	<tr>\n";
 echo "	<td align='left' colspan='2' nowrap='nowrap'>\n";
 echo "		<b>".$text['title-2']."</b><br>\n";
 echo "	</td>\n";
-
-//get the user status when the page loads
-	$sql = "";
-	$sql .= "select * from v_users ";
-	$sql .= "where domain_uuid = '$domain_uuid' ";
-	$sql .= "and username = '".$_SESSION['username']."' ";
-	$sql .= "and user_enabled = 'true' ";
-	$prep_statement = $db->prepare(check_sql($sql));
-	$prep_statement->execute();
-	$result = $prep_statement->fetchAll(PDO::FETCH_NAMED);
-	foreach ($result as &$row) {
-		$user_status = $row["user_status"];
-		break; //limit to 1 row
-	}
 
 /*
 if ($_SESSION['user_status_display'] == "false") {
@@ -347,4 +345,3 @@ echo "-->\n";
 echo "</script>\n";
 
 require_once "resources/footer.php";
-?>
