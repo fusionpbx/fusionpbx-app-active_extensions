@@ -26,7 +26,6 @@
 
 //includes files
 	require_once dirname(__DIR__, 2) . "/resources/require.php";
-	require_once "resources/pdo.php";
 	require_once "resources/check_auth.php";
 
 //check permissions
@@ -49,6 +48,9 @@
 		$_GET['rows'] = 0;
 	}
 
+//connect to the database
+	$database = new database;
+
 //define variables
 	$c = 0;
 	$row_style["0"] = "row_style1";
@@ -57,9 +59,9 @@
 //get the user status
 	$sql = "select e.extension, u.username, u.user_status ";
 	$sql .= "from v_users as u, v_extensions as e ";
-	$sql .= "where e.domain_uuid = '$domain_uuid' ";
+	$sql .= "where e.domain_uuid = :domain_uuid ";
 	$sql .= "and u.user_enabled = 'true' ";
-	$sql .= "and u.domain_uuid = '$domain_uuid' ";
+	$sql .= "and u.domain_uuid = :domain_uuid ";
 	//$sql = "select * ";
 	//$sql .= "from v_extensions ";
 	//$sql .= "where domain_uuid = '$domain_uuid' ";
@@ -80,10 +82,11 @@
 			$sql .= "and extension = 'disabled' ";
 		}
 	}
-	$prep_statement = $db->prepare(check_sql($sql));
-	$prep_statement->execute();
+	$parameters['domain_uuid'] = $domain_uuid;
+	$result = $database->select($sql, $parameters ?? null, 'all');
+	unset($sql, $parameters);
+
 	$x = 0;
-	$result = $prep_statement->fetchAll(PDO::FETCH_NAMED);
 	foreach ($result as &$row) {
 		if (strlen($row["user_status"]) > 0) {
 			$user_array[$row["extension"]]['username'] = $row["username"];
@@ -95,7 +98,7 @@
 		}
 		$x++;
 	}
-	unset ($prep_statement, $x);
+	unset ($x);
 
 //create the event socket connection
 	$fp = event_socket_create($_SESSION['event_socket_ip_address'], $_SESSION['event_socket_port'], $_SESSION['event_socket_password']);
@@ -259,8 +262,7 @@
 					unset($_SESSION['extension_array']);
 				}
 				if (empty($_SESSION['extension_array'])) {
-					$sql = "";
-					$sql .= "select * from v_extensions ";
+					$sql = "select * from v_extensions ";
 					$x = 0;
 					$range_array = $_GET['range'];
 					foreach($range_array as $tmp_range) {
@@ -269,13 +271,13 @@
 						$tmp_min = $tmp_array[0];
 						$tmp_max = $tmp_array[1];
 						if ($x == 0) {
-							$sql .= "where domain_uuid = '$domain_uuid' ";
+							$sql .= "where domain_uuid = :domain_uuid ";
 							$sql .= "and extension >= $tmp_min ";
 							$sql .= "and extension <= $tmp_max ";
 							$sql .= "and enabled = 'true' ";
 						}
 						else {
-							$sql .= "or domain_uuid = '$domain_uuid' ";
+							$sql .= "or domain_uuid = :domain_uuid ";
 							$sql .= "and extension >= $tmp_min ";
 							$sql .= "and extension <= $tmp_max ";
 							$sql .= "and enabled = 'true' ";
@@ -283,13 +285,14 @@
 						$x++;
 					}
 					if (empty($range_array)) {
-						$sql .= "where domain_uuid = '$domain_uuid' ";
+						$sql .= "where domain_uuid = :domain_uuid ";
 						$sql .= "and enabled = 'true' ";
 					}
 					$sql .= "order by extension asc ";
-					$prep_statement = $db->prepare(check_sql($sql));
-					$prep_statement->execute();
-					$result = $prep_statement->fetchAll(PDO::FETCH_NAMED);
+					$parameters['domain_uuid'] = $domain_uuid;
+					$result = $database->select($sql, $parameters ?? null, 'all');
+					unset($sql, $parameters);
+
 					foreach ($result as &$row) {
 						if ($row["enabled"] == "true") {
 							$extension = $row["extension"];
