@@ -24,7 +24,7 @@
 		$apps[$x]['permissions'][0]['menu']['uuid'] = "eba3d07f-dd5c-6b7b-6880-493b44113ade";
 		$apps[$x]['permissions'][0]['groups'][] = "superadmin";
 		$apps[$x]['permissions'][0]['groups'][] = "admin";
-		$x++
+		$x++;
 		$apps[$x]['permissions'][2]['name'] = "active_extension_user_status";
 
 ?>
