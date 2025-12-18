@@ -5,7 +5,7 @@
 		$apps[$x]['uuid'] = "8ce1121c-fc4b-48b3-96d3-93a399809315";
 		$apps[$x]['category'] = "Switch";
 		$apps[$x]['subcategory'] = "";
-		$apps[$x]['version'] = "";
+		$apps[$x]['version'] = "1.1";
 		$apps[$x]['license'] = "Mozilla Public License 1.1";
 		$apps[$x]['url'] = "http://www.fusionpbx.com";
 		$apps[$x]['description']['en-us'] = "List of active extensions.";
@@ -24,9 +24,7 @@
 		$apps[$x]['permissions'][0]['menu']['uuid'] = "eba3d07f-dd5c-6b7b-6880-493b44113ade";
 		$apps[$x]['permissions'][0]['groups'][] = "superadmin";
 		$apps[$x]['permissions'][0]['groups'][] = "admin";
-
-		//$apps[$x]['permissions'][2]['name'] = "active_extension_assigned_view";
-		//$apps[$x]['permissions'][2]['groups'][] = "superadmin";
-		//$apps[$x]['permissions'][2]['groups'][] = "admin";
+		$x++
+		$apps[$x]['permissions'][2]['name'] = "active_extension_user_status";
 
 ?>

@@ -17,7 +17,7 @@
 
 	The Initial Developer of the Original Code is
 	Mark J Crane <markjcrane@fusionpbx.com>
-	Copyright (C) 2010-2023
+	Copyright (C) 2010-2025
 	All Rights Reserved.
 
 	Contributor(s):
@@ -29,10 +29,7 @@
 	require_once "resources/check_auth.php";
 
 //check permissions
-	if (permission_exists('active_extension_view')) {
-		//access granted
-	}
-	else {
+	if (!permission_exists('active_extension_view')) {
 		echo "access denied";
 		exit;
 	}
@@ -337,10 +334,7 @@
 					echo "<table width='100%' border='0' cellpadding='0' cellspacing='0'>\n";
 					echo "<tr>\n";
 					echo "<th width='50px;'>".$text['label-extension']."</th>\n";
-					if ($_SESSION['user_status_display'] == "false") {
-						//hide the user_status when it is set to false
-					}
-					else {
+					if (permission_exists('active_extension_user_status')) {
 						echo "<th>".$text['label-status']."</th>\n";
 					}
 					echo "<th>".$text['label-time']."</th>\n";
@@ -400,10 +394,7 @@
 							}
 							echo "<tr>\n";
 							echo "<td class='".$row_style[$c]."' $style_alternate>".escape($extension)."</td>\n";
-							if ($_SESSION['user_status_display'] == "false") {
-								//hide the user_status when it is set to false
-							}
-							else {
+							if (permission_exists('active_extension_user_status')) {
 								echo "<td class='".$row_style[$c]."' $style_alternate>".escape($user_array[$extension]['user_status'])."&nbsp;</td>\n";
 							}
 							echo "<td class='".$row_style[$c]."' $style_alternate width='20px;'>".$call_length."</td>\n";
@@ -441,10 +432,7 @@
 							$style_alternate = "style=\"color: #444444; background-image: url('".PROJECT_PATH."/themes/".$_SESSION['domain']['template']['name']."/images/background_cell_light.gif');\"";
 							echo "<tr>\n";
 							echo "<td class='".$row_style[$c]."' $style_alternate>".escape($extension)."</td>\n";
-							if ($_SESSION['user_status_display'] == "false") {
-								//hide the user_status when it is set to false
-							}
-							else {
+							if (permission_exists('active_extension_user_status')) {
 								echo "<td class='".$row_style[$c]."' $style_alternate>".escape($user_array[$extension]['user_status'])."&nbsp;</td>\n";
 							}
 							echo "<td class='".$row_style[$c]."' $style_alternate>&nbsp;</td>\n";
@@ -505,10 +493,7 @@
 							echo "<table width='100%' border='0' cellpadding='0' cellspacing='0'>\n";
 							echo "<tr>\n";
 							echo "<th>".$text['label-ext']."</th>\n";
-							if ($_SESSION['user_status_display'] == "false") {
-								//hide the user_status when it is set to false
-							}
-							else {
+							if (permission_exists('active_extension_user_status')) {
 								echo "<th>".$text['label-status']."</th>\n";
 							}
 							echo "<th>".$text['label-time']."</th>\n";
