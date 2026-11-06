@@ -50,8 +50,9 @@
 
 //define variables
 	$c = 0;
-	$row_style["0"] = "row_style1";
+	$row_style["0"] = "row_style0";
 	$row_style["1"] = "row_style1";
+	$template_name = $settings->get('domain', 'template', 'default');
 
 //get the user status
 	$sql = "select e.extension, u.username, u.user_status ";
@@ -99,10 +100,10 @@
 	unset ($x);
 
 //create the event socket connection
-	$fp = event_socket_create($_SESSION['event_socket_ip_address'], $_SESSION['event_socket_port'], $_SESSION['event_socket_password']);
+	$event_socket = event_socket::create();
 
 //get information over event socket
-	if (!$fp) {
+	if (!$event_socket->is_connected()) {
 		$msg = "<div align='center'>".$text['confirm-socket']."<br /></div>";
 		echo "<div align='center'>\n";
 		echo "<table width='40%'>\n";
@@ -119,8 +120,8 @@
 
 		//get the agent list from event socket
 			$switch_cmd = 'callcenter_config agent list';
-			$event_socket_str = trim(event_socket_request($fp, 'api '.$switch_cmd));
-			$agent_array = csv_to_named_array($event_socket_str, '|');
+			$event_socket_result = trim(event_socket::api($switch_cmd));
+			$agent_array = csv_to_named_array($event_socket_result, '|');
 		//set the status on the user_array by using the extension as the key
 			foreach ($agent_array as $row) {
 				if (count($_SESSION['domains']) == 1) {
@@ -170,7 +171,7 @@
 
 		//send the event socket command
 			$switch_cmd = 'show channels as xml';
-			$xml_str = trim(event_socket_request($fp, 'api '.$switch_cmd));
+			$xml_str = trim(event_socket::api($switch_cmd));
 
 		//parse the xml
 			try {
@@ -379,21 +380,18 @@
 						}
 
 						if ($found_extension) {
-							if ($application == "conference") {
-								$alt_color = "background-image: url('".PROJECT_PATH."/themes/".$_SESSION['domain']['template']['name']."/images/background_cell_active.gif";
-							}
 							switch ($application) {
 							case "conference":
-								$style_alternate = "style=\"color: #444444; background-image: url('".PROJECT_PATH."/themes/".$_SESSION['domain']['template']['name']."/images/background_cell_conference.gif');\"";
+								$style_alternate = "style=\"color: #444444; background-image: url('".PROJECT_PATH."/themes/".$template_name."/images/background_cell_conference.gif');\"";
 								break;
 							case "fifo":
-								$style_alternate = "style=\"color: #444444; background-image: url('".PROJECT_PATH."/themes/".$_SESSION['domain']['template']['name']."/images/background_cell_fifo.gif');\"";
+								$style_alternate = "style=\"color: #444444; background-image: url('".PROJECT_PATH."/themes/".$template_name."/images/background_cell_fifo.gif');\"";
 								break;
 							case "valet_park":
-								$style_alternate = "style=\"color: #444444; background-image: url('".PROJECT_PATH."/themes/".$_SESSION['domain']['template']['name']."/images/background_cell_fifo.gif');\"";
+								$style_alternate = "style=\"color: #444444; background-image: url('".PROJECT_PATH."/themes/".$template_name."/images/background_cell_fifo.gif');\"";
 								break;
 							default:
-								$style_alternate = "style=\"color: #444444; background-image: url('".PROJECT_PATH."/themes/".$_SESSION['domain']['template']['name']."/images/background_cell_active.gif');\"";
+								$style_alternate = "style=\"color: #444444; background-image: url('".PROJECT_PATH."/themes/".$template_name."/images/background_cell_active.gif');\"";
 							}
 							echo "<tr>\n";
 							echo "<td class='".$row_style[$c]."' $style_alternate>".escape($extension)."</td>\n";
@@ -432,7 +430,8 @@
 							}
 						}
 						else {
-							$style_alternate = "style=\"color: #444444; background-image: url('".PROJECT_PATH."/themes/".$_SESSION['domain']['template']['name']."/images/background_cell_light.gif');\"";
+							//idle rows: let the row_style dark/light CSS stripes show (no opaque background-image)
+							$style_alternate = "";
 							echo "<tr>\n";
 							echo "<td class='".$row_style[$c]."' $style_alternate>".escape($extension)."</td>\n";
 							if (permission_exists('active_extension_user_status')) {
