@@ -69,7 +69,7 @@ require_once "resources/header.php";
 //declare variables
 	var previous_uuid_1 = '';
 	var previous_uuid_2 = '';
-	var url = '<?php echo $url; ?>';
+	var url = '<?php echo escape($url); ?>';
 
 //define the ajax function
 	function loadXmlHttp(url, id) {
@@ -167,7 +167,7 @@ if (this.xmlHttp.readyState == 4 && (this.xmlHttp.status == 200 || !/^http/.test
 
 var requestTime = function() {
 	<?php
-	echo "var url = 'active_extensions_inc.php?". $_SERVER["QUERY_STRING"]."';\n";
+	echo "var url = 'active_extensions_inc.php?". escape($_SERVER["QUERY_STRING"])."';\n";
 	echo "new loadXmlHttp(url, 'ajax_reponse');\n";
 	if (strlen($_SESSION["ajax_refresh_rate"]) == 0) { $_SESSION["ajax_refresh_rate"] = "900"; }
 	echo "setInterval(function(){new loadXmlHttp(url, 'ajax_reponse');}, ".$_SESSION["ajax_refresh_rate"].");";
@@ -304,7 +304,7 @@ echo "	</td>\n";
 if ($event_type=="iframe") {
 	echo "</td>\n";
 	echo "<td width='".escape($iframe_width)."' height='".escape($iframe_height)."'>\n";
-	echo "	<iframe src ='$url' width='100%' id='iframe1' height='100%' frameborder=0>\n";
+	echo "	<iframe src ='".escape($url)."' width='100%' id='iframe1' height='100%' frameborder=0>\n";
 	echo "		<p>Your browser does not support iframes.</p>\n";
 	echo "	</iframe>\n";
 	echo "</td>\n";

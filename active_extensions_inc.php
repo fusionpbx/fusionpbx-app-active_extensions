@@ -69,7 +69,8 @@
 			$x = 0;
 			foreach($_SESSION['user']['extension'] as $row) {
 				if ($x > 0) { $sql .= "or "; }
-				$sql .= "e.extension = '".$row['user']."' ";
+				$sql .= "e.extension = :user_extension_$x ";
+				$parameters['user_extension_'.$x] = $row['user'];
 				$x++;
 			}
 			$sql .= ")";
@@ -269,16 +270,18 @@
 						$tmp_max = $tmp_array[1];
 						if ($x == 0) {
 							$sql .= "where domain_uuid = :domain_uuid ";
-							$sql .= "and extension >= $tmp_min ";
-							$sql .= "and extension <= $tmp_max ";
+							$sql .= "and extension >= :range_min_$x ";
+							$sql .= "and extension <= :range_max_$x ";
 							$sql .= "and enabled = 'true' ";
 						}
 						else {
 							$sql .= "or domain_uuid = :domain_uuid ";
-							$sql .= "and extension >= $tmp_min ";
-							$sql .= "and extension <= $tmp_max ";
+							$sql .= "and extension >= :range_min_$x ";
+							$sql .= "and extension <= :range_max_$x ";
 							$sql .= "and enabled = 'true' ";
 						}
+						$parameters['range_min_'.$x] = $tmp_min;
+						$parameters['range_max_'.$x] = $tmp_max;
 						$x++;
 					}
 					if (empty($range_array)) {
@@ -405,8 +408,8 @@
 									}
 									$url = str_replace ("{cid_num}", escape($cid_num), $url);
 									$url = str_replace ("{cid_name}", escape($cid_name), $url);
-									echo "<td class='".$row_style[$c]."' $style_alternate><a href='".$url."' style='color: #444444;' target='_blank'>".escape($cid_name)."</a></td>\n";
-									echo "<td class='".$row_style[$c]."' $style_alternate><a href='".$url."' style='color: #444444;' target='_blank'>".escape($cid_num)."</a></td>\n";
+									echo "<td class='".$row_style[$c]."' $style_alternate><a href='".escape($url)."' style='color: #444444;' target='_blank'>".escape($cid_name)."</a></td>\n";
+									echo "<td class='".$row_style[$c]."' $style_alternate><a href='".escape($url)."' style='color: #444444;' target='_blank'>".escape($cid_num)."</a></td>\n";
 								}
 							}
 							if (if_group("admin") || if_group("superadmin")) {
@@ -456,20 +459,20 @@
 								if ($found_extension) {
 									echo "<td valign='top' class='".$row_style[$c]."' $style_alternate>\n";
 										//transfer
-											echo "	<a href='javascript:void(0);' style='color: #444444;' onclick=\"send_cmd('calls_exec.php?cmd='+get_transfer_cmd(escape('$uuid')));\">".$text['label-transfer']."</a>&nbsp;\n";
+											echo "	<a href='javascript:void(0);' style='color: #444444;' onclick=\"send_cmd('calls_exec.php?cmd='+get_transfer_cmd(escape('".escape($uuid)."')));\">".$text['label-transfer']."</a>&nbsp;\n";
 										//park
-											echo "	<a href='javascript:void(0);' style='color: #444444;' onclick=\"send_cmd('calls_exec.php?cmd='+get_park_cmd(escape('$uuid')));\">".$text['label-park']."</a>&nbsp;\n";
+											echo "	<a href='javascript:void(0);' style='color: #444444;' onclick=\"send_cmd('calls_exec.php?cmd='+get_park_cmd(escape('".escape($uuid)."')));\">".$text['label-park']."</a>&nbsp;\n";
 										//hangup
-											echo "	<a href='javascript:void(0);' style='color: #444444;' onclick=\"confirm_response = confirm('".$text['confirm-hangup']."');if (confirm_response){send_cmd('calls_exec.php?cmd=uuid_kill%20'+(escape('$uuid')));}\">".$text['label-hangup']."</a>&nbsp;\n";
+											echo "	<a href='javascript:void(0);' style='color: #444444;' onclick=\"confirm_response = confirm('".$text['confirm-hangup']."');if (confirm_response){send_cmd('calls_exec.php?cmd=uuid_kill%20'+(escape('".escape($uuid)."')));}\">".$text['label-hangup']."</a>&nbsp;\n";
 										//record start/stop
 											$tmp_file = $_SESSION['switch']['recordings']['dir']."/archive/".date("Y")."/".date("M")."/".date("d")."/".$uuid.".wav";
 											if (file_exists($tmp_file)) {
 												//stop
-												echo "	<a href='javascript:void(0);' style='color: #444444;' onclick=\"send_cmd('calls_exec.php?cmd='+get_record_cmd(escape('$uuid'), 'active_extensions_', escape('$cid_num'))+'&uuid='+escape('$uuid')+'&action=record&action2=stop&prefix=active_extensions_&name='+escape('$cid_num'));\">".$text['label-stop']."</a>&nbsp;\n";
+												echo "	<a href='javascript:void(0);' style='color: #444444;' onclick=\"send_cmd('calls_exec.php?cmd='+get_record_cmd(escape('".escape($uuid)."'), 'active_extensions_', escape('$cid_num'))+'&uuid='+escape('".escape($uuid)."')+'&action=record&action2=stop&prefix=active_extensions_&name='+escape('$cid_num'));\">".$text['label-stop']."</a>&nbsp;\n";
 											}
 											else {
 												//start
-												echo "	<a href='javascript:void(0);' style='color: #444444;' onclick=\"send_cmd('calls_exec.php?cmd='+get_record_cmd(escape('$uuid'), 'active_extensions_', escape('$cid_num'))+'&uuid='+escape('$uuid')+'&action=record&action2=start&prefix=active_extensions_');\">".$text['label-start']."</a>&nbsp;\n";
+												echo "	<a href='javascript:void(0);' style='color: #444444;' onclick=\"send_cmd('calls_exec.php?cmd='+get_record_cmd(escape('".escape($uuid)."'), 'active_extensions_', escape('$cid_num'))+'&uuid='+escape('".escape($uuid)."')+'&action=record&action2=start&prefix=active_extensions_');\">".$text['label-start']."</a>&nbsp;\n";
 											}
 										echo "	&nbsp;";
 									echo "</td>\n";
