@@ -39,7 +39,11 @@
 
 //http get and set variables
 	if (strlen($_GET['url']) > 0) {
-		$url = $_GET['url'];
+		//reject URLs that would execute script or leave the origin (javascript:, data:, vbscript:, //host, ...)
+		$url_check = strtolower(preg_replace('/[\x00-\x20\x7F]/', '', trim($_GET['url'])));
+		if (!preg_match('/^(?!https?:)[a-z][a-z0-9+.\\-]*:/', $url_check) && strncmp($url_check, '//', 2) !== 0) {
+			$url = $_GET['url'];
+		}
 	}
 
 	echo "<table width='100%' border='0' cellpadding='5' cellspacing='0'>\n";
@@ -137,10 +141,10 @@
 
 					echo "<td class='".$row_style[$c]."' $style_alternate>\n";
 					if ($application == "valet_park") {
-						echo $valet_array[trim($uuid)]['extension']."\n";
+						echo escape($valet_array[trim($uuid)]['extension'])."\n";
 					}
 					else {
-						echo $dest."&nbsp;\n";
+						echo escape($dest)."&nbsp;\n";
 					}
 					echo "</td>\n";
 					echo "<td class='".$row_style[$c]."' $style_alternate>\n";
@@ -148,31 +152,31 @@
 						echo "queue &nbsp;\n";
 					}
 					else {
-						echo $application."&nbsp;\n";
+						echo escape($application)."&nbsp;\n";
 					}
 					echo "</td>\n";
 					echo "<td class='".$row_style[$c]."' $style_alternate>\n";
-					echo "".$secure."&nbsp;\n";
+					echo escape($secure)."&nbsp;\n";
 					echo "</td>\n";
 					echo "<td class='".$row_style[$c]."' $style_alternate>\n";
-					echo "".$effective_caller_id_name."&nbsp;\n";
+					echo escape($effective_caller_id_name)."&nbsp;\n";
 					echo "</td>\n";
 					echo "<td valign='top' class='".$row_style[$c]."' $style_alternate>\n";
 						//transfer
-							echo "	<a href='javascript:void(0);' style='color: #444444;' onMouseover=\"document.getElementById('form_label').innerHTML='<strong>".$text['label-transfer']."</strong>';\" onclick=\"send_cmd('calls_exec.php?cmd='+get_transfer_cmd(escape('$uuid')));\">".$text['label-transfer']."</a>&nbsp;\n";
+							echo "	<a href='javascript:void(0);' style='color: #444444;' onMouseover=\"document.getElementById('form_label').innerHTML='<strong>".$text['label-transfer']."</strong>';\" onclick=\"send_cmd('calls_exec.php?cmd='+get_transfer_cmd(escape('".escape($uuid)."')));\">".$text['label-transfer']."</a>&nbsp;\n";
 						//park
-							echo "	<a href='javascript:void(0);' style='color: #444444;' onclick=\"send_cmd('calls_exec.php?cmd='+get_park_cmd(escape('$uuid')));\">".$text['label-park']."</a>&nbsp;\n";
+							echo "	<a href='javascript:void(0);' style='color: #444444;' onclick=\"send_cmd('calls_exec.php?cmd='+get_park_cmd(escape('".escape($uuid)."')));\">".$text['label-park']."</a>&nbsp;\n";
 						//hangup
-							echo "	<a href='javascript:void(0);' style='color: #444444;' onclick=\"confirm_response = confirm('".$text['confirm-hangup']."');if (confirm_response){send_cmd('calls_exec.php?cmd=uuid_kill%20'+(escape('$uuid')));}\">".$text['label-hangup']."</a>&nbsp;\n";
-						//record start/stop 
+							echo "	<a href='javascript:void(0);' style='color: #444444;' onclick=\"confirm_response = confirm('".$text['confirm-hangup']."');if (confirm_response){send_cmd('calls_exec.php?cmd=uuid_kill%20'+(escape('".escape($uuid)."')));}\">".$text['label-hangup']."</a>&nbsp;\n";
+						//record start/stop
 							$tmp_file = $settings->get('switch', 'recordings', '')."/archive/".date("Y")."/".date("M")."/".date("d")."/".$uuid.".mp3";
 							if (file_exists($tmp_file)) {
 								//stop
-								echo "	<a href='javascript:void(0);' style='color: #444444;' onclick=\"send_cmd('calls_exec.php?cmd='+get_record_cmd(escape('$uuid'), 'active_extensions_', escape('$cid_num'))+'&uuid='+escape('$uuid')+'&action=record&action2=stop&prefix=active_extensions_&name='+escape('$cid_num'));\">".$text['label-stop']."</a>&nbsp;\n";
+								echo "	<a href='javascript:void(0);' style='color: #444444;' onclick=\"send_cmd('calls_exec.php?cmd='+get_record_cmd(escape('".escape($uuid)."'), 'active_extensions_', escape(".escape(json_encode((string) $cid_num, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP))."))+'&uuid='+escape('".escape($uuid)."')+'&action=record&action2=stop&prefix=active_extensions_&name='+escape(".escape(json_encode((string) $cid_num, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP))."));\">".$text['label-stop']."</a>&nbsp;\n";
 							}
 							else {
 								//start
-								echo "	<a href='javascript:void(0);' style='color: #444444;' onclick=\"send_cmd('calls_exec.php?cmd='+get_record_cmd(escape('$uuid'), 'active_extensions_', escape('$cid_num'))+'&uuid='+escape('$uuid')+'&action=record&action2=start&prefix=active_extensions_');\">".$text['label-start']."</a>&nbsp;\n";
+								echo "	<a href='javascript:void(0);' style='color: #444444;' onclick=\"send_cmd('calls_exec.php?cmd='+get_record_cmd(escape('".escape($uuid)."'), 'active_extensions_', escape(".escape(json_encode((string) $cid_num, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP))."))+'&uuid='+escape('".escape($uuid)."')+'&action=record&action2=start&prefix=active_extensions_');\">".$text['label-start']."</a>&nbsp;\n";
 							}
 						echo "	&nbsp;";
 					echo "</td>\n";
@@ -181,7 +185,7 @@
 				else {
 					$style_alternate = "style=\"color: #444444; background-image: url('".PROJECT_PATH."/themes/".$settings->get('domain', 'template', 'default')."/images/background_cell_light.gif');\"";
 					echo "<tr>\n";
-					echo "<td class='".$row_style[$c]."' $style_alternate>$extension</td>\n";
+					echo "<td class='".$row_style[$c]."' $style_alternate>".escape($extension)."</td>\n";
 					if (permission_exists('active_extension_user_status')) {
 						echo "<td class='".$row_style[$c]."' $style_alternate>".escape($user_array[$extension]['user_status'])."&nbsp;</td>\n";
 					}
@@ -215,15 +219,15 @@
 	echo "</tr>\n";
 	echo "</table>\n";
 
-	echo "<span id='uuid_1' style='visibility:hidden;'>$uuid_1</span>\n";
+	echo "<span id='uuid_1' style='visibility:hidden;'>".escape($uuid_1)."</span>\n";
 	//echo "<span id='direction_1' style='visibility:hidden;'>$direction_1</span>\n";
-	echo "<span id='cid_name_1' style='visibility:hidden;'>$cid_name_1</span>\n";
-	echo "<span id='cid_num_1' style='visibility:hidden;'>$cid_num_1</span>\n";
+	echo "<span id='cid_name_1' style='visibility:hidden;'>".escape($cid_name_1)."</span>\n";
+	echo "<span id='cid_num_1' style='visibility:hidden;'>".escape($cid_num_1)."</span>\n";
 
-	echo "<span id='uuid_2' style='visibility:hidden;'>$uuid_2</span>\n";
+	echo "<span id='uuid_2' style='visibility:hidden;'>".escape($uuid_2)."</span>\n";
 	//echo "<span id='direction_2' style='visibility:hidden;'>$direction_2</span>\n";
-	echo "<span id='cid_name_2' style='visibility:hidden;'>$cid_name_2</span>\n";
-	echo "<span id='cid_num_2' style='visibility:hidden;'>$cid_num_2</span>\n";
+	echo "<span id='cid_name_2' style='visibility:hidden;'>".escape($cid_name_2)."</span>\n";
+	echo "<span id='cid_num_2' style='visibility:hidden;'>".escape($cid_num_2)."</span>\n";
 
 	echo "<br />\n";
 

@@ -39,7 +39,11 @@
 
 //http get and set variables
 	if (strlen($_GET['url']) > 0) {
-		$url = $_GET['url'];
+		//reject URLs that would execute script or leave the origin (javascript:, data:, vbscript:, //host, ...)
+		$url_check = strtolower(preg_replace('/[\x00-\x20\x7F]/', '', trim($_GET['url'])));
+		if (!preg_match('/^(?!https?:)[a-z][a-z0-9+.\-]*:/', $url_check) && strncmp($url_check, '//', 2) !== 0) {
+			$url = $_GET['url'];
+		}
 	}
 	if (strlen($_GET['rows']) == 0) {
 		$_GET['rows'] = 0;
@@ -467,11 +471,11 @@
 											$tmp_file = $_SESSION['switch']['recordings']['dir']."/archive/".date("Y")."/".date("M")."/".date("d")."/".$uuid.".wav";
 											if (file_exists($tmp_file)) {
 												//stop
-												echo "	<a href='javascript:void(0);' style='color: #444444;' onclick=\"send_cmd('calls_exec.php?cmd='+get_record_cmd(escape('".escape($uuid)."'), 'active_extensions_', escape('$cid_num'))+'&uuid='+escape('".escape($uuid)."')+'&action=record&action2=stop&prefix=active_extensions_&name='+escape('$cid_num'));\">".$text['label-stop']."</a>&nbsp;\n";
+												echo "	<a href='javascript:void(0);' style='color: #444444;' onclick=\"send_cmd('calls_exec.php?cmd='+get_record_cmd(escape('".escape($uuid)."'), 'active_extensions_', escape(".escape(json_encode((string) $cid_num, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP))."))+'&uuid='+escape('".escape($uuid)."')+'&action=record&action2=stop&prefix=active_extensions_&name='+escape(".escape(json_encode((string) $cid_num, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP))."));\">".$text['label-stop']."</a>&nbsp;\n";
 											}
 											else {
 												//start
-												echo "	<a href='javascript:void(0);' style='color: #444444;' onclick=\"send_cmd('calls_exec.php?cmd='+get_record_cmd(escape('".escape($uuid)."'), 'active_extensions_', escape('$cid_num'))+'&uuid='+escape('".escape($uuid)."')+'&action=record&action2=start&prefix=active_extensions_');\">".$text['label-start']."</a>&nbsp;\n";
+												echo "	<a href='javascript:void(0);' style='color: #444444;' onclick=\"send_cmd('calls_exec.php?cmd='+get_record_cmd(escape('".escape($uuid)."'), 'active_extensions_', escape(".escape(json_encode((string) $cid_num, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP))."))+'&uuid='+escape('".escape($uuid)."')+'&action=record&action2=start&prefix=active_extensions_');\">".$text['label-start']."</a>&nbsp;\n";
 											}
 										echo "	&nbsp;";
 									echo "</td>\n";

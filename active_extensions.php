@@ -50,7 +50,11 @@
 		if (strlen($iframe_height) > 0) { $iframe_height = '100%'; }
 	}
 	if (strlen($_GET['url']) > 0) {
-		$url = $_GET['url'];
+		//reject URLs that would execute script or leave the origin (javascript:, data:, vbscript:, //host, ...)
+		$url_check = strtolower(preg_replace('/[\x00-\x20\x7F]/', '', trim($_GET['url'])));
+		if (!preg_match('/^(?!https?:)[a-z][a-z0-9+.\-]*:/', $url_check) && strncmp($url_check, '//', 2) !== 0) {
+			$url = $_GET['url'];
+		}
 	}
 	if (strlen($_GET['rows']) > 0) {
 		$rows = $_GET['rows'];
@@ -170,7 +174,7 @@ var requestTime = function() {
 	echo "var url = 'active_extensions_inc.php?". escape($_SERVER["QUERY_STRING"])."';\n";
 	echo "new loadXmlHttp(url, 'ajax_reponse');\n";
 	if (strlen($_SESSION["ajax_refresh_rate"]) == 0) { $_SESSION["ajax_refresh_rate"] = "900"; }
-	echo "setInterval(function(){new loadXmlHttp(url, 'ajax_reponse');}, ".$_SESSION["ajax_refresh_rate"].");";
+	echo "setInterval(function(){new loadXmlHttp(url, 'ajax_reponse');}, ".(int)$_SESSION["ajax_refresh_rate"].");";
 	?>
 }
 
@@ -320,7 +324,7 @@ echo "<!--\n";
 echo "function get_transfer_cmd(uuid) {\n";
 echo "	destination = document.getElementById('form_value').value;\n";
 echo "	if (destination.length > 1) { \n";
-echo "		cmd = \"uuid_transfer \"+uuid+\" -bleg \"+destination+\" xml ".$_SESSION['user_context']."\";\n";
+echo "		cmd = \"uuid_transfer \"+uuid+\" -bleg \"+destination+\" xml ".escape($_SESSION['user_context'])."\";\n";
 echo "	}\n";
 echo "	else {\n";
 echo "		cmd = '';\n";
@@ -330,12 +334,12 @@ echo "	return escape(cmd);\n";
 echo "}\n";
 echo "\n";
 echo "function get_park_cmd(uuid) {\n";
-echo "	cmd = \"uuid_transfer \"+uuid+\" -bleg *6000 xml ".$_SESSION['user_context']."\";\n";
+echo "	cmd = \"uuid_transfer \"+uuid+\" -bleg *6000 xml ".escape($_SESSION['user_context'])."\";\n";
 echo "	return escape(cmd);\n";
 echo "}\n";
 echo "\n";
 echo "function get_record_cmd(uuid, prefix, name) {\n";
-echo "	cmd = \"uuid_record \"+uuid+\" start ".$_SESSION['switch']['recordings']['dir']."/archive/".date("Y")."/".date("M")."/".date("d")."/\"+uuid+\".wav\";\n";
+echo "	cmd = \"uuid_record \"+uuid+\" start ".escape($_SESSION['switch']['recordings']['dir'])."/archive/".date("Y")."/".date("M")."/".date("d")."/\"+uuid+\".wav\";\n";
 echo "	return escape(cmd);\n";
 echo "}\n";
 echo "-->\n";
